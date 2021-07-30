@@ -40,7 +40,7 @@ jobs:
         with:
           azcliversion: 2.0.72
           inlineScript: |
-             apiKey=$(az rest --method post --uri /subscriptions/${{secrets.AZURE_SUBSCRIPTIONID}}/resourcegroups/TwVosDevEurRg01/providers/Microsoft.Web/staticSites/TwVosDevEurRg01/listsecrets?api-version=2020-06-01 --query 'properties.apiKey' -otsv) 
+             apiKey=$(az rest --method post --uri /subscriptions/${{secrets.AZURE_SUBSCRIPTIONID}}/resourcegroups/TwVosDevEurRg01/providers/Microsoft.Web/staticSites/TwVosDevEurWeb01/listsecrets?api-version=2020-06-01 --query 'properties.apiKey' -otsv) 
              echo "$apiKey"
              echo "apiKeyStaticWebApp=$apiKey" >> $GITHUB_ENV
       - name: Build And Deploy
