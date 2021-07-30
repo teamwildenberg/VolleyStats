@@ -1,0 +1,54 @@
+name: Fun01 Deploy
+
+on:
+# make sure to run the action whenever fun01 code is merged to main 
+  push:
+    branches: [ main ]
+    paths:
+      - 'fun01/**'
+      - '!arm/**'
+      
+# after a deployment, make sure to re-deploy the function again
+  workflow_run:
+    workflows: ["ARM Deploy"]
+    types:
+      - completed
+
+  workflow_dispatch:
+
+env:
+  configuration: 'Release'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults: 
+      run:
+        working-directory: fun01
+        
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .net Core v3
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Setup .net Core v5
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: '5.0.x'
+      - name: 'versions'
+        run: dotnet --info
+      - name: 'build'
+        run: dotnet build --configuration ${{ env.configuration }} --output ./output
+      - name: 'test'
+        run: dotnet test
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_SUBSCRIPTION_DEV}}
+      - name: 'deploy'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'TwVosDevEurFun01'
+          package: './fun01/output'
+

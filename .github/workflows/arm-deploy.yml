@@ -1,0 +1,29 @@
+name: ARM Deploy
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'arm/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_SUBSCRIPTION_DEV}}
+      - name: Azure Bicep Build
+        run: |
+          az bicep build --file ./arm/azure-resources.bicep --outfile ./arm/azure-resources-compiled.json
+      - name: Deploy Azure Bicep
+        uses: Azure/arm-deploy@v1
+        with:
+          resourceGroupName: 'TwVosDevEurRg01'
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+          template: ./arm/azure-resources-compiled.json 
+          parameters: ./arm/azure-resources-parameters.json

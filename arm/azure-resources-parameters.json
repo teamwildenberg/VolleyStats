@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "projectName": {
+            "value": "TwVos"
+        },
+        "environment": {
+            "value": "Dev"
+        },
+        "region": {
+            "value": "Eur"
+        },
+        "spnObjectId":{
+            "value": "a32b5371-885a-443d-929e-38e06fb199b4"
+        }
+    }
+}

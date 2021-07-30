@@ -1,0 +1,26 @@
+name: Web01 Build
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'web01/**'
+
+  workflow_dispatch:
+  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults: 
+      run:
+        working-directory: web01
+        
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js 
+        uses: actions/setup-node@v2
+        with:
+          node-version: 15.x
+      - run: npm ci
+      - run: npm run build-dev

@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+      "experimentalDecorators": true,
+      "module": "ES2020",
+      "moduleResolution": "Node",
+      "target": "ES6",
+      "outDir": "./dist",
+      "sourceMap": true,
+      "removeComments": true,
+      "esModuleInterop": true,
+      // strict checks
+      "strict": true,
+      // linter checks
+      "noImplicitReturns": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": false,
+      "typeRoots": [
+        "./src/types",
+        "./node_modules/@types"
+      ]
+    },
+    "include": [
+      "./src/**/*"
+    ],
+    "exclude": [
+      "./src/*.test.js",
+      "./src/**/*.test.js"
+    ]
+  }

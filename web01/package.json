@@ -1,0 +1,48 @@
+{
+  "name": "barets",
+  "version": "1.0.0",
+  "description": "Volley Stats project",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "lint": "./node_modules/.bin/eslint",
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development",
+    "clean": "rm dist/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teamwildenberg/volleystats.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/teamwildenberg/volleystats/issues"
+  },
+  "homepage": "https://github.com/teamwildenberg/volleystats#readme",
+  "dependencies": {
+    "@microsoft/signalr": "^5.0.8",
+    "@vaadin/router": "^1.7.4",
+    "azure-maps-control": "^2.1.2",
+    "lit-element": "^2.5.1",
+    "rxjs": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.7",
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
+    "@typescript-eslint/parser": "^4.28.5",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^5.2.7",
+    "eslint": "^7.31.0",
+    "html-loader": "^2.1.2",
+    "sass": "^1.36.0",
+    "sass-loader": "^12.1.0",
+    "style-loader": "^3.2.1",
+    "ts-loader": "^9.2.4",
+    "typescript": "^4.3.5",
+    "webpack": "^5.47.1",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  }
+}

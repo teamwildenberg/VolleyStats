@@ -1,0 +1,319 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.63.48766",
+      "templateHash": "11457432077154332430"
+    }
+  },
+  "parameters": {
+    "projectName": {
+      "type": "string",
+      "defaultValue": "TwVos",
+      "metadata": {
+        "description": "Define the project name or prefix for all objects."
+      },
+      "maxLength": 11,
+      "minLength": 1
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "Poc",
+      "metadata": {
+        "description": "The environment to deploy to 'Dev' | 'Poc' | 'Prod'."
+      },
+      "maxLength": 3,
+      "minLength": 3
+    },
+    "region": {
+      "type": "string",
+      "defaultValue": "Eur",
+      "metadata": {
+        "description": "The Azure region as part of the name ('Eur' | '...')."
+      },
+      "maxLength": 3,
+      "minLength": 3
+    },
+    "spnObjectId": {
+      "type": "string",
+      "defaultValue": "Eur",
+      "metadata": {
+        "description": "Service Principal ID to set KeyVault deployment access policy"
+      },
+      "maxLength": 36,
+      "minLength": 36
+    }
+  },
+  "functions": [],
+  "variables": {
+    "prefix": "[format('{0}{1}{2}', parameters('projectName'), parameters('environment'), parameters('region'))]",
+    "prefixLower": "[toLower(variables('prefix'))]",
+    "sig01Name": "[format('{0}Sig01', variables('prefix'))]",
+    "sig01SkuName": "Free_F1",
+    "sign01Tier": "Free",
+    "st02Name": "[format('{0}st02', variables('prefixLower'))]",
+    "st03Name": "[format('{0}st03', variables('prefixLower'))]",
+    "log01Name": "[format('{0}Log01', variables('prefixLower'))]",
+    "log01SkuName": "Free",
+    "plan01Name": "[format('{0}plan01', variables('prefixLower'))]",
+    "plan01SkuTier": "Dynamic",
+    "plan01SkuName": "Y1",
+    "plan01Capacity": 0,
+    "plan01Family": "Y",
+    "plan01Size": "Y1",
+    "fun01Name": "[format('{0}Fun01', variables('prefix'))]",
+    "ins01Name": "[format('{0}Ins01', variables('prefix'))]",
+    "kv01Name": "[format('{0}Kv01', variables('prefix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.SignalRService/signalR",
+      "apiVersion": "2021-04-01-preview",
+      "name": "[variables('sig01Name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "features": [
+          {
+            "flag": "ServiceMode",
+            "value": "Serverless"
+          },
+          {
+            "flag": "EnableConnectivityLogs",
+            "value": "true"
+          }
+        ],
+        "tls": {
+          "clientCertEnabled": false
+        }
+      },
+      "sku": {
+        "name": "[variables('sig01SkuName')]",
+        "tier": "[variables('sign01Tier')]",
+        "capacity": 1
+      },
+      "tags": {}
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('fun01Name')]",
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet-isolated"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(format('microsoft.insights/components/{0}', variables('ins01Name')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(format('microsoft.insights/components/{0}', variables('ins01Name')), '2015-05-01').ConnectionString]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1};', variables('st02Name'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('st02Name')), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1};', variables('st02Name'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('st02Name')), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "SensorDataStorageConnectionString",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1}', variables('st03Name'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('st03Name')), '2021-04-01').keys[0].value)]"
+            },
+            {
+              "name": "AzureSignalRConnectionString",
+              "value": "[listKeys(resourceId('Microsoft.SignalRService/signalR', variables('sig01Name')), providers('Microsoft.SignalRService', 'SignalR').apiVersions[0]).primaryConnectionString]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[format('{0}89d6', toLower(variables('fun01Name')))]"
+            }
+          ]
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('plan01Name'))]",
+        "clientAffinityEnabled": true,
+        "httpsOnly": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('ins01Name'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('plan01Name'))]",
+        "[resourceId('Microsoft.SignalRService/signalR', variables('sig01Name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('st02Name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('st03Name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-10-01",
+      "name": "[variables('log01Name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "[variables('log01SkuName')]"
+        },
+        "features": {
+          "enableLogAccessUsingOnlyResourcePermissions": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('plan01Name')]",
+      "location": "[resourceGroup().location]",
+      "kind": "",
+      "tags": {},
+      "sku": {
+        "tier": "[variables('plan01SkuTier')]",
+        "name": "[variables('plan01SkuName')]",
+        "size": "[variables('plan01Size')]",
+        "family": "[variables('plan01Family')]",
+        "capacity": "[variables('plan01Capacity')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('ins01Name')]",
+      "location": "[resourceGroup().location]",
+      "kind": "web",
+      "tags": {},
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('log01Name'))]",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('log01Name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('st02Name')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[variables('st03Name')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2021-04-01",
+      "name": "[format('{0}/{1}', variables('st03Name'), 'default')]",
+      "properties": {
+        "cors": {
+          "corsRules": [
+            {
+              "allowedOrigins": [
+                "*"
+              ],
+              "allowedMethods": [
+                "PUT",
+                "GET",
+                "POST"
+              ],
+              "maxAgeInSeconds": 0,
+              "exposedHeaders": [
+                "*"
+              ],
+              "allowedHeaders": [
+                "*"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('st03Name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}/{2}', variables('st03Name'), 'default', 'sensorData')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('st03Name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('st03Name'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2016-10-01",
+      "name": "[variables('kv01Name')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('fun01Name')), '2019-08-01', 'full').identity.principalId]",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "get"
+              ],
+              "certificates": []
+            }
+          },
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[parameters('spnObjectId')]",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "set"
+              ],
+              "certificates": []
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('fun01Name'))]"
+      ]
+    }
+  ]
+}

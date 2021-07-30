@@ -1,0 +1,19 @@
+name: ARM Build
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'arm/**'
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Azure Bicep Build
+        run: |
+          az bicep build --file ./arm/azure-resources.bicep
