@@ -9,6 +9,7 @@ export class Level extends ScoringBase{
     constructor(key: string, action:Move, name:string, value: number) {
 		  super(key);
       this.action = action;
+      this.action.subScores.push(this);
       this.name = name;
       this.value = value;
 
