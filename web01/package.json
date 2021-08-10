@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^16.4.7",
+    "@types/youtube": "0.0.44",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
