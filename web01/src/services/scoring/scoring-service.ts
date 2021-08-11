@@ -1,15 +1,11 @@
-import { Move } from "./def/move";
 import { iScoringService } from "./i-scoring-service";
-import { Player } from "./def/player";
-import { Level } from "./def/level";
-import { Team } from "./def/team";
-import { Fragment } from "./play/fragment";
-import { Match } from "./play/match";
 import { ScoringBase } from "./def/scoring-base";
+import { ScoringType } from "./def/scoring-type";
+import { Fragment } from "./play/fragment";
 
 
 export class ScoringService implements iScoringService {
-    match: Match = new Match();
+    match: ScoringBase = new ScoringBase('', 'A match to score',  ScoringType.match, undefined);
     fragment: Fragment | undefined;
 
     constructor(){
@@ -17,50 +13,52 @@ export class ScoringService implements iScoringService {
     }
 
     init() {
-        var moves : Move[] = [];
-        var teamA =new Team('A','M&P');
-        this.match.subScores.push(teamA);
-        var teamB = new Team('B', 'J&P');
-        this.match.subScores.push(teamB);
-        new Player("1", teamA, 1, 'Matthijs', moves);     
-        new Player("2",teamA, 2, 'Jasper', moves);
-        new Player("1", teamB, 1, 'Paul', moves);
-        new Player("2", teamB, 2, 'Mark', moves);
+        var moves : ScoringBase[] = [];
+        var teamA =new ScoringBase('A', 'Team A', ScoringType.team, this.match);
+        var teamB = new ScoringBase('B', 'Team B', ScoringType.team, this.match);
+        var p1 = new ScoringBase("1", "P1", ScoringType.player, teamA);
+        p1.subScores = moves;
+        var p2 = new ScoringBase("2", "p2", ScoringType.player, teamA);
+        p2.subScores = moves;
+        var p3 = new ScoringBase("1", "p3", ScoringType.player, teamB);
+        p3.subScores = moves;
+        var p4 = new ScoringBase("2", "p4", ScoringType.player, teamB);
+        p4.subScores = moves;
 
-        var actionAServe = new Move('S', 'Serve', '', 0, 4);
+        var actionAServe = new ScoringBase('S', 'Serve', ScoringType.action, undefined);
         moves.push(actionAServe);
-        new Level("0", actionAServe, "Error", 0);
-        new Level("1", actionAServe, "Opponent Perfect Pass – can run middle quick", 1);
-        new Level("2", actionAServe, "Opponent can set pins ", 2);
-        new Level("3", actionAServe, "Free ball return", 3);
-        new Level("4", actionAServe, "Ace, no return", 4);
+        new ScoringBase("0", "Error", ScoringType.scoring, actionAServe);
+        new ScoringBase("1", "Opponent Perfect Pass – can run middle quick", ScoringType.scoring, actionAServe);
+        new ScoringBase("2", "Opponent can set pins ", ScoringType.scoring, actionAServe);
+        new ScoringBase("3", "Free ball return", ScoringType.scoring, actionAServe);
+        new ScoringBase("4", "Ace, no return", ScoringType.scoring, actionAServe);
 
-        var actionReceive = new Move('R', 'Receive', '', 0, 3);
+        var actionReceive = new ScoringBase('R', 'Receive', ScoringType.action, undefined);
         moves.push(actionReceive);
-        new Level("0", actionReceive, "Error", 0);
-        new Level("1", actionReceive, "Free ball return", 1);
-        new Level("2", actionReceive, "Can set pinns", 2);
-        new Level("3", actionReceive, "Perfect pass, can set quick middle", 3);
+        new ScoringBase("0", "Error", ScoringType.scoring, actionReceive);
+        new ScoringBase("1", "Free ball return", ScoringType.scoring, actionReceive);
+        new ScoringBase("2", "Can set pinns", ScoringType.scoring, actionReceive);
+        new ScoringBase("3", "Perfect pass, can set quick middle", ScoringType.scoring, actionReceive);
 
-        var actionAttack = new Move('A', 'Assist', '', 0, 2);
+        var actionAttack = new ScoringBase('A', 'Assist', ScoringType.action, undefined);
         moves.push(actionAttack);
-        new Level("0", actionAttack, "Ball handling Error", 0);
-        new Level("1", actionAttack, "Second ball, no free ball", 1);
-        new Level("2", actionAttack, "Assist with kill", 2);
+        new ScoringBase("0", "Ball handling Error", ScoringType.scoring, actionAttack);
+        new ScoringBase("1", "Second ball, no free ball", ScoringType.scoring, actionAttack);
+        new ScoringBase("2", "Assist with kill", ScoringType.scoring, actionAttack);
 
-        var actionBlock = new Move('B', 'Block', '', 1, 1);
+        var actionBlock = new ScoringBase('B', 'Block', ScoringType.action, undefined);
         moves.push(actionBlock);
-        new Level("1", actionBlock, "Direct point", 1);
+        new ScoringBase("1", "Direct point", ScoringType.scoring, actionBlock);
 
-        var actionDig = new Move('D', 'Dig', '', 1, 1);
+        var actionDig = new ScoringBase('D', 'Dig', ScoringType.action, undefined);
         moves.push(actionDig);
-        new Level("1", actionDig, "Ball in play", 1);
+        new ScoringBase("1", "Ball in play", ScoringType.scoring, actionDig);
 
-        var actionAttack = new Move('C', 'Attack', '', 0, 2);
+        var actionAttack = new ScoringBase('C', 'Attack', ScoringType.action, undefined);
         moves.push(actionAttack);
-        new Level("0", actionAttack, "Error", 0);
-        new Level("1", actionAttack, "Ball in Play", 1);
-        new Level("2", actionAttack, "Kill", 2);
+        new ScoringBase("0", "Error", ScoringType.scoring, actionAttack);
+        new ScoringBase("1", "Ball in Play", ScoringType.scoring, actionAttack);
+        new ScoringBase("2", "Kill", ScoringType.scoring, actionAttack);
     }
 
     registerKeyDown(){
