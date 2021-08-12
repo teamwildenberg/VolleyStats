@@ -3,5 +3,5 @@ export enum ScoringType{
     team,
     player,
     action,
-    scoring
+    score
 }

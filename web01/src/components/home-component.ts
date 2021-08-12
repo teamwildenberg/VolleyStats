@@ -1,5 +1,6 @@
-import { html, css, LitElement } from 'lit-element';
+import { html, css, LitElement, property } from 'lit-element';
 import { iScoringService } from '../services/scoring/i-scoring-service';
+import { Fragment } from '../services/scoring/play/fragment';
 
 export class HomeComponent extends LitElement{
     public video: any = 'M7lc1UVf-VE';
@@ -21,11 +22,16 @@ body section {
 `;
     }
 
+    @property({type: Object})fragment?: Fragment;
+
     render (){
         return html`
 <main id="main">
     <section>
         <h1>Getting Started</h1>
+        <p>
+            ${this.fragment?.title}
+        </p>
         <div id="player"></div>
     </section>
 </main>
@@ -69,6 +75,11 @@ body section {
 
         var scoringService: iScoringService = globalThis.di.get(iScoringService);
         scoringService.registerKeyDown();
+        scoringService.scoringData.subscribe(s =>{
+            if (s.type == 'fragment'){
+                this.fragment = <Fragment>s;
+            }
+        })
     }
 
     override disconnectedCallback(){
