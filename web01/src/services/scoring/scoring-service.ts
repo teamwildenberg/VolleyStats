@@ -11,7 +11,7 @@ export class ScoringService implements iScoringService {
     match: ScoringDefinition = new ScoringDefinition('', 'A match to score',  ScoringType.match, undefined);
     fragment: Fragment | undefined;
     action: Action | undefined;
-    scoringData = new Subject<ScoreBase>();
+    scoringData = new Subject<ScoreBase|undefined>();
 
     constructor(){
         this.init()
@@ -70,7 +70,7 @@ export class ScoringService implements iScoringService {
         document.onkeydown = (e: KeyboardEvent)=>{
             if (e.key == "Backspace"){
                 this.popFragment(this.fragment);
-            }if (e.key == "Enter"){
+            }else if (e.key == "Enter"){
                 alert('enter');
             }
             else{ 
@@ -90,9 +90,11 @@ export class ScoringService implements iScoringService {
         else{
             if(fragment.previous != undefined){
                 this.fragment = fragment.previous;
+                this.scoringData.next(this.fragment);
             }
             else{
                 this.fragment = undefined;
+                this.scoringData.next(undefined);
             }
         }
     }

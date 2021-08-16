@@ -76,8 +76,11 @@ body section {
         var scoringService: iScoringService = globalThis.di.get(iScoringService);
         scoringService.registerKeyDown();
         scoringService.scoringData.subscribe(s =>{
-            if (s.type == 'fragment'){
+            if ((s != undefined) && (s.type == 'fragment')){
                 this.fragment = <Fragment>s;
+            }
+            else{
+                this.fragment = undefined;
             }
         })
     }

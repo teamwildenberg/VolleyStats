@@ -25,6 +25,9 @@ export class Fragment extends ScoreBase{
             newFrag.previous = previousFragment;
             newFrag.title = newFrag.previous.title + ' ' + newFrag.score.description;
         }
+        else{
+            newFrag.title = newFrag.score.description;
+        }
         return newFrag;
 
     }
